@@ -161,7 +161,7 @@ router.post('/phone/verify-otp', async (req, res) => {
   }
 });
 
-router.post("/phone/login/number", limiter, async (req, res) => {
+router.post("/phone/login/number", async (req, res) => {
   const { phone, email } = req.body;
   if (!phone || !email) return res.status(400).json({ success: false, error: 'phone number & email must be required' });
   const phoneNumber = normalizeNumber(phone);

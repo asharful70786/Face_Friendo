@@ -4,11 +4,10 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import UserFace from '../Models/UserFace.js';
-
-
+import { authMiddleWare } from '../MiddleWares/authMiddleWare.js';
+import RoleAuthCheck from '../MiddleWares/RoleAuthCheck.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const router = express.Router();
 
 // SETUP MULTER FOR FILE UPLOAD
@@ -26,7 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST route for uploading multiple images
-router.post('/api/upload', upload.array('images', 10), (req, res) => {
+router.post('/api/upload', authMiddleWare, RoleAuthCheck, upload.array('images', 10), (req, res) => {
   try {
     const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
     return res.status(200).json({ imagePaths });
@@ -37,7 +36,7 @@ router.post('/api/upload', upload.array('images', 10), (req, res) => {
 });
 
 // POST route to save face descriptors
-router.post('/api/save-bulk-face', async (req, res) => {
+router.post('/api/save-bulk-face',authMiddleWare, RoleAuthCheck, async (req, res) => {
   try {
     const { faces } = req.body;
     if (!faces || !Array.isArray(faces)) {

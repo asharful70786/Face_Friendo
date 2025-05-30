@@ -1,12 +1,14 @@
 import "../App.css";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
 
 const BaseUrl = "http://localhost:3000";
 
 const PhoneAuth = () => {
   const [step, setStep] = useState("choose"); // choose | send-otp | verify-otp | login
   const [isLogin, setIsLogin] = useState(true); // true => login, false => register
+  const navigate = useNavigate(); 
   const [form, setForm] = useState({
     phone: "",
     email: "",
@@ -57,8 +59,8 @@ const PhoneAuth = () => {
 
   const loginWithNumber = async () => {
     const res = await fetch(`${BaseUrl}/user/phone/login/number`, {
-      method: "POST",
       credentials: "include",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         phone: form.countryCode + form.phone,
@@ -68,6 +70,9 @@ const PhoneAuth = () => {
     const data = await res.json();
     if (res.ok) {
       toast.success("Logged in!");
+      setStep("done");
+      navigate("/");
+
     } else {
       toast.error(data.error);
     }

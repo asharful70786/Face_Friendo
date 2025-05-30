@@ -30,7 +30,6 @@ router.post("/google-login", limiter, async (req, res) => {
 
 router.post("/user-info", authMiddleWare, async (req, res) => {
   const user = req.user;
-  console.log(user);
   try {
     return res.status(200).json({ message:  user });
   } catch (error) {

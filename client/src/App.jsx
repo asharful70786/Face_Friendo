@@ -49,13 +49,13 @@ function App() {
             }
           />
           <Route
-            path="/admin-upload"
-            element={
-              <ProtectedRoute>
-                <AdminFaceUpload />
-              </ProtectedRoute>
-            }
-          />
+             path="/admin-upload"
+             element={
+             <ProtectedRoute requireAdmin={true}>
+            <AdminFaceUpload />
+             </ProtectedRoute>
+              }
+             />
           <Route
             path="/about-user"
             element={

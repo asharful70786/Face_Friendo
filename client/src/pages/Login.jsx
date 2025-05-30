@@ -1,7 +1,8 @@
 import React from 'react';
 import PhoneAuth from './continueWithPhoneNumber';
 import EmailLogin from './ContinueWithEmail';
-import LogWithGoogle from './loginWithGoogle';
+import LogWithGoogle from  "./loginWithGoogle";
+
 
 function Login() {
   return (
@@ -28,7 +29,9 @@ function Login() {
         {/* Email Auth Section */}
         <div className="bg-base-200 bg-opacity-20 p-4 rounded-xl shadow-inner">
           <h2 className="text-lg font-bold mb-2 text-center">Email Auth Flow</h2>
-          <EmailLogin />
+          < EmailLogin />
+          
+      
         </div>
 
       </div>

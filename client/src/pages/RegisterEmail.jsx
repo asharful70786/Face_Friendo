@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 
-const Login = () => {
-  const [step, setStep] = useState('email'); // 'email', 'otp', 'done'
+const Register = () => {
+  const [step, setStep] = useState(1); // 1: email, 2: otp, 3: password
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
+  const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleEmailSubmit = async (e) => {
+  const sendOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
@@ -20,18 +20,18 @@ const Login = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('OTP sent to your email.');
-        setStep('otp');
+        setMessage('OTP sent to your email');
+        setStep(2);
       } else {
-        setMessage(data.message || 'Something went wrong.');
+        setMessage(data.message || 'Failed to send OTP');
       }
-    } catch (error) {
-      setMessage('Network error.');
+    } catch (err) {
+      setMessage('Server error.');
     }
     setLoading(false);
   };
 
-  const handleOtpSubmit = async (e) => {
+  const verifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
@@ -43,48 +43,46 @@ const Login = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('OTP verified. You can now log in.');
-        setStep('login');
+        setMessage('OTP verified, now set your password');
+        setStep(3);
       } else {
-        setMessage(data.message || 'OTP verification failed.');
+        setMessage(data.message || 'Invalid OTP');
       }
-    } catch (error) {
-      setMessage('Network error.');
+    } catch (err) {
+      setMessage('Server error.');
     }
     setLoading(false);
   };
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
     try {
-      const res = await fetch('http://localhost:4000/api/login', {
+      const res = await fetch('http://localhost:4000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // to send cookies
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage('Login successful.');
-        setStep('done');
+        setMessage('Registration successful!');
       } else {
-        setMessage(data.message || 'Login failed.');
+        setMessage(data.message || 'Registration failed');
       }
-    } catch (error) {
-      setMessage('Network error.');
+    } catch (err) {
+      setMessage('Server error.');
     }
     setLoading(false);
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow rounded mt-10 space-y-4">
-      <h2 className="text-2xl font-bold text-center">Login / OTP Auth</h2>
-      {message && <p className="text-center text-sm text-blue-600">{message}</p>}
+    <div className="max-w-md mx-auto mt-10 p-6 shadow rounded bg-white space-y-4">
+      <h2 className="text-xl font-bold text-center">Register</h2>
+      {message && <p className="text-center text-blue-500">{message}</p>}
 
-      {step === 'email' && (
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
+      {step === 1 && (
+        <form onSubmit={sendOtp} className="space-y-4">
           <input
             type="email"
             className="w-full p-2 border rounded"
@@ -93,14 +91,14 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
+          <button className="w-full p-2 bg-blue-600 text-white rounded">
             {loading ? 'Sending OTP...' : 'Send OTP'}
           </button>
         </form>
       )}
 
-      {step === 'otp' && (
-        <form onSubmit={handleOtpSubmit} className="space-y-4">
+      {step === 2 && (
+        <form onSubmit={verifyOtp} className="space-y-4">
           <input
             type="text"
             className="w-full p-2 border rounded"
@@ -109,33 +107,29 @@ const Login = () => {
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
-          <button type="submit" className="w-full bg-green-600 text-white p-2 rounded">
+          <button className="w-full p-2 bg-green-600 text-white rounded">
             {loading ? 'Verifying OTP...' : 'Verify OTP'}
           </button>
         </form>
       )}
 
-      {step === 'login' && (
-        <form onSubmit={handleLogin} className="space-y-4">
+      {step === 3 && (
+        <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="password"
             className="w-full p-2 border rounded"
-            placeholder="Enter password"
+            placeholder="Set a password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="submit" className="w-full bg-purple-600 text-white p-2 rounded">
-            {loading ? 'Logging in...' : 'Login'}
+          <button className="w-full p-2 bg-purple-600 text-white rounded">
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-      )}
-
-      {step === 'done' && (
-        <p className="text-center text-green-700 font-semibold">🎉 You're logged in!</p>
       )}
     </div>
   );
 };
 
-export default Login;
+export default Register;
