@@ -3,7 +3,6 @@ import User from '../Models/userModel.js';
 import sendMail from '../Services/sendMailOtp.js';
 import OTP from '../Models/otpModel.js';
 import bcrypt from 'bcrypt';
-import Session from '../Models/sessionModel.js';
 import twilio from 'twilio';
 import { normalizeNumber } from '../utils/normalizeNumber.js';
 import { createSessionAndSetCookie } from '../utils/sessionHandler.js';
@@ -17,7 +16,7 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TO
 
 
 
-router.post("/register/email", limiter, async (req, res) => {
+router.post("/register/email", async (req, res) => {
   const { name, email } = req.body;
 
   if (!name || !email) return res.status(400).json({ message: "name and email is required" });
@@ -29,7 +28,6 @@ router.post("/register/email", limiter, async (req, res) => {
   if (user) return res.status(400).json({ message: "user already exist" });
   try {
     await sendMail(email);
-
     return res.status(200).json({ message: "email sent successfully" });
   } catch (error) {
     console.log(`error in sending email ${error}`);
@@ -91,11 +89,10 @@ router.post("/register/user-email", async (req, res) => {
     console.log(`error in registering user ${error.message}`);
     return res.status(500).json({ message: "something went wrong" });
   }
-
 })
 
 
-router.post("/email-login", limiter, async (req, res) => {
+router.post("/email-login", limiter, async (req, res, next) => {
   const { sid } = req.signedCookies;
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ message: "email and password is required" });
@@ -106,12 +103,16 @@ router.post("/email-login", limiter, async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "invalid credentials" });
     await createSessionAndSetCookie(user._id, res);
     return res.status(200).json({ message: "login successfully" })
+
   } catch (error) {
+    next(error)
     return res.status(500).json({ message: error.message });
   }
 })
 
-router.post('/send-otp', limiter, async (req, res) => {
+
+// Send OTP to phone number
+router.post('/phone/send-otp', limiter, async (req, res) => {
   const { phone, email } = req.body;
   if (!phone || !email) return res.status(400).json({ success: false, error: 'phone number & email must be required' });
   const phoneNumber = normalizeNumber(phone);
@@ -133,7 +134,7 @@ router.post('/send-otp', limiter, async (req, res) => {
 });
 
 // Verify OTP
-router.post('/verify-otp', async (req, res) => {
+router.post('/phone/verify-otp', async (req, res) => {
   const { phone, code, email, name } = req.body
 
   if (!phone || !code || !email) return res.status(400).json({ success: false, error: 'phone number  , email & code are required' });
@@ -160,7 +161,7 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
-router.post("/login/phone-number",  limiter, async (req, res) => {
+router.post("/phone/login/number", limiter, async (req, res) => {
   const { phone, email } = req.body;
   if (!phone || !email) return res.status(400).json({ success: false, error: 'phone number & email must be required' });
   const phoneNumber = normalizeNumber(phone);

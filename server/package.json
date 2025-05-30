@@ -10,9 +10,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -21,7 +21,9 @@
     "google-auth-library": "^9.15.1",
     "helmet": "^8.1.0",
     "mongoose": "^8.15.1",
+    "multer": "^2.0.0",
     "nodemailer": "^7.0.3",
     "twilio": "^5.7.0"
-  }
+  },
+  "description": ""
 }
