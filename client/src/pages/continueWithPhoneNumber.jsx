@@ -91,7 +91,7 @@ const PhoneAuth = () => {
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-xl shadow-xl space-y-6">
       {step === "choose" && (
         <div className="space-y-4 text-center">
-          <h2 className="block text-sm font-medium text-black">Welcome</h2>
+          <h2 className="block text-sm font-medium text-black"> Login or Register With Phone Number</h2>
           <button
             className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
             onClick={() => {

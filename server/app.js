@@ -4,6 +4,7 @@ import path from 'path';
 import useRouter from './Routes/userRoutes.js';
 import authRoutes from './Routes/authRoutes.js';
 import faceRoutes from './Routes/faceRoutes.js';
+import uploadByAdmin from './Routes/fileRoutersByAdmin.js';
 import connectDB from './Config/db.js';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -34,7 +35,7 @@ app.use(express.json());
 app.use("/user", useRouter);
 app.use("/auth", authRoutes);
 app.use('/api', faceRoutes);
-
+app.use("/" ,  uploadByAdmin);
  app.use((err, req, res, next) => {
     console.log(err);
     res.status(err.status || 500).json({ error: "Something went wrong! Please try again" });

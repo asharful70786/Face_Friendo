@@ -1,6 +1,7 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 
+
 function LogWithGoogle() {
   const BASE_URL = "http://localhost:3000";
    const navigate = useNavigate();
@@ -21,6 +22,7 @@ function LogWithGoogle() {
 
             if (!response.ok) {
               console.error("Failed to log in via Google");
+
             } else {
               const data = await response.json();
               console.log("Login success:", data);

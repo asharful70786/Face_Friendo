@@ -21,6 +21,7 @@ const EmailAuth = () => {
     setLoading(true);
     try {
       const res = await fetch("http://localhost:3000/user/register/email", {
+          credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -43,6 +44,7 @@ const EmailAuth = () => {
     setLoading(true);
     try {
       const res = await fetch("http://localhost:3000/user/verify/email-otp", {
+          credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -65,6 +67,7 @@ const EmailAuth = () => {
     setLoading(true);
     try {
       const res = await fetch("http://localhost:3000/user/register/user-email", {
+          credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -88,6 +91,7 @@ const EmailAuth = () => {
     setLoading(true);
     try {
       const res = await fetch("http://localhost:3000/user/email-login", {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -16,7 +16,7 @@ export const authMiddleWare = async (req, res, next) => {
       return res.status(401).json({ success: false, error: "Invalid or expired session" });
     }
 
-    const user = await User.findById(session.userId);
+    const user = await User.findById(session.userId).select("-password -__v -_id -isDeleted");
     if (!user) {
       res.clearCookie("sid");
       return res.status(404).json({ success: false, error: "User not found" });

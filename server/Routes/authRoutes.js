@@ -32,16 +32,14 @@ router.post("/user-info", authMiddleWare, async (req, res) => {
   const user = req.user;
   console.log(user);
   try {
-    return res.status(200).json({ message: "user info fetched successfully", user });
+    return res.status(200).json({ message:  user });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
-
 })
 
 router.post("/logout", async (req, res) => {
   const { sid } = req.signedCookies;
-
   console.log(sid);
   try {
     res.clearCookie("sid");

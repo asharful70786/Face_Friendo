@@ -3,6 +3,7 @@ import UserFace from "../Models/UserFace.js";
 import multer from "multer";
 import path from "path";
 import fs from 'fs';
+import { authMiddleWare } from "../MiddleWares/authMiddleWare.js";
 const router = express.Router();
 
 
@@ -33,15 +34,15 @@ const upload = multer({ storage });
 router.post('/save-face', upload.single('image'), async (req, res) => {
   const { name, descriptor } = req.body;
 
-  if (!name || !descriptor || !req.file) {
+  if (!descriptor || !req.file) {
     return res.status(400).json({ message: "Missing data" });
   }
 
   try {
-      const face = new UserFace({
+    const face = new UserFace({
       name,
       descriptor: JSON.parse(descriptor),
-      imageUrl: `/uploads/${req.file.filename}` 
+      imageUrl: `/uploads/${req.file.filename}`
     });
 
     await face.save();
@@ -64,7 +65,7 @@ router.post('/match-face', async (req, res) => {
     return res.status(400).json({ message: "Invalid descriptor" });
   }
 
-  const threshold = 0.6; // adjust if needed
+  const threshold = 0.9; // adjust if needed
   const matches = [];
 
   const faces = await UserFace.find();
@@ -88,6 +89,10 @@ router.post('/match-face', async (req, res) => {
     return res.json({ match: false, message: "No similar faces found." });
   }
 });
+
+
+
+
 
 
 

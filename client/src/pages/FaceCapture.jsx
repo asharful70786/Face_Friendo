@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Webcam from "react-webcam";
 import * as faceapi from 'face-api.js';
+import MatchedFaces from './MatchedFaces';
 
 
 const FaceCapture = () => {
@@ -45,7 +46,7 @@ const FaceCapture = () => {
       return;
     }
 
-    const imageBlob = await fetch(screenshot).then(res => res.blob());
+    const imageBlob = await fetch(screenshot ,{  credentials: "include", method: "GET"} ).then(res => res.blob());
     const formData = new FormData();
     formData.append("image", imageBlob, "face.jpg");
     formData.append("name", name);
@@ -53,6 +54,7 @@ const FaceCapture = () => {
 
     try {
       const response = await fetch("http://localhost:3000/api/save-face", {
+          credentials: "include",
         method: "POST",
         body: formData
       });
@@ -85,6 +87,7 @@ const FaceCapture = () => {
     const descriptor = Array.from(detection.descriptor);
 
     const response = await fetch("http://localhost:3000/api/match-face", {
+      credentials: "include",
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ descriptor }),
@@ -124,8 +127,9 @@ const FaceCapture = () => {
           <p>Loading Models...</p>
         )}
       </div>
-
-{matches.length > 0 && (
+    {  MatchedFaces({matches})
+}
+{/* {matches.length > 0 && (
   <div style={{ marginTop: "30px" }}>
     <h3>Matched Faces:</h3>
     <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", justifyContent: "center" }}>
@@ -142,7 +146,7 @@ const FaceCapture = () => {
       ))}
     </div>
   </div>
-)}
+)} */}
 
     </div>
   );
