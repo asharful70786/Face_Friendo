@@ -2,7 +2,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Webcam from "react-webcam";
 import * as faceapi from 'face-api.js';
-import MatchedFaces from './MatchedFaces';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { FiDownload, FiX, FiChevronLeft, FiChevronRight, FiUser } from 'react-icons/fi';
 
 const FaceCapture = () => {
   const webcamRef = useRef(null);
@@ -10,6 +12,8 @@ const FaceCapture = () => {
   const [matches, setMatches] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('capture');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Load face-api.js models on mount
   useEffect(() => {
@@ -54,7 +58,7 @@ const FaceCapture = () => {
         return;
       }
 
-      const imageBlob = await fetch(screenshot, { credentials: "include", method: "GET" }).then(res => res.blob());
+      const imageBlob = await fetch(screenshot , {credentials: "include"}).then(res => res.blob());
       const formData = new FormData();
       formData.append("image", imageBlob, "face.jpg");
       formData.append("name", name);
@@ -121,9 +125,70 @@ const FaceCapture = () => {
     }
   };
 
+  const downloadAllImages = async () => {
+    try {
+      const zip = new JSZip();
+      const imgFolder = zip.folder("matched_faces");
+      
+      // Add each image to the zip
+      await Promise.all(matches.map(async (match, index) => {
+        const response = await fetch(getImageUrl(match.imageUrl) , {credentials: "include"});
+        const blob = await response.blob();
+        const fileName = `${match.name || 'matched_face'}_${index + 1}.jpg`;
+        imgFolder.file(fileName, blob);
+      }));
+      
+      // Generate the zip file
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, "matched_faces.zip");
+    } catch (error) {
+      console.error("Error downloading images:", error);
+      alert("Failed to download images");
+    }
+  };
+
+  const downloadImage = async (imageUrl, name, index) => {
+    try {
+      const response = await fetch(getImageUrl(imageUrl) , {credentials: "include"});
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${name || 'matched_face'}_${index + 1}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      alert("Failed to download image");
+    }
+  };
+
+  const getImageUrl = (imagePath) => {
+    return `http://localhost:3000/${imagePath.replace(/^\/+/, '')}`;
+  };
+
+  const openImageModal = (image, index) => {
+    setSelectedImage(image);
+    setCurrentIndex(index);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+  };
+
+  const navigateImages = (direction) => {
+    let newIndex = currentIndex + direction;
+    if (newIndex < 0) newIndex = matches.length - 1;
+    if (newIndex >= matches.length) newIndex = 0;
+    setCurrentIndex(newIndex);
+    setSelectedImage(matches[newIndex]);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
         <div className="p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-indigo-700 mb-2">Face Recognition System</h1>
@@ -223,27 +288,122 @@ const FaceCapture = () => {
           {/* Matches Section */}
           {matches.length > 0 && (
             <div className="mt-12">
-              <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">Match Results</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  <FiUser className="inline mr-2" />
+                  Matched Results: {matches.length} {matches.length === 1 ? 'Image' : 'Images'} Found
+                </h3>
+                <div className="flex gap-3">
+                  <button
+                    onClick={downloadAllImages}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center"
+                  >
+                    <FiDownload className="mr-2" />
+                    Download All
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {matches.map((match, index) => (
-                  <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-200">
-                    <div className="p-4">
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-200 group relative"
+                  >
+                    <div 
+                      className="w-full h-48 bg-gray-100 cursor-pointer overflow-hidden"
+                      onClick={() => openImageModal(match, index)}
+                    >
                       <img
-                        src={`http://localhost:3000/${match.imageUrl.replace(/^\/+/, '')}`}
+                        src={getImageUrl(match.imageUrl)}
                         alt={match.name}
-                        className="w-full h-48 object-cover rounded-lg mb-4"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                        }}
                       />
-                      <div className="text-center">
-                        <h4 className="text-lg font-semibold text-gray-800">{match.name}</h4>
-                        <div className="mt-2">
-                          <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                            Confidence: {(1 - match.distance).toFixed(4)}
-                          </span>
-                        </div>
+                    </div>
+                    <div className="p-4">
+                      <h4 className="text-lg font-semibold text-indigo-700 truncate">
+                        {match.name || 'Unknown Person'}
+                      </h4>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {match.distance ? `Confidence: ${(100 - match.distance * 100).toFixed(2)}%` : 'No confidence score'}
+                      </p>
+                      <div className="flex justify-between items-center mt-3">
+                        <span className="text-xs text-gray-500">
+                          #{index + 1}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadImage(match.imageUrl, match.name, index);
+                          }}
+                          className="text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-1 px-3 rounded-lg transition duration-200 flex items-center"
+                        >
+                          <FiDownload className="mr-1" />
+                          Download
+                        </button>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Image Modal */}
+          {selectedImage && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-auto">
+                <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {selectedImage.name || 'Unknown Person'}
+                  </h3>
+                  <button
+                    onClick={closeImageModal}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <FiX size={24} />
+                  </button>
+                </div>
+                <div className="relative">
+                  <img
+                    src={getImageUrl(selectedImage.imageUrl)}
+                    alt={selectedImage.name}
+                    className="w-full h-auto max-h-[70vh] object-contain"
+                  />
+                  <button
+                    onClick={() => navigateImages(-1)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+                  >
+                    <FiChevronLeft size={24} />
+                  </button>
+                  <button
+                    onClick={() => navigateImages(1)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+                  >
+                    <FiChevronRight size={24} />
+                  </button>
+                </div>
+                <div className="p-4 border-t border-gray-200 flex justify-between items-center">
+                  <div>
+                    <p className="text-gray-600">
+                      {selectedImage.distance ? `Confidence: ${(100 - selectedImage.distance * 100).toFixed(2)}%` : 'No confidence score'}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Image {currentIndex + 1} of {matches.length}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => downloadImage(selectedImage.imageUrl, selectedImage.name, currentIndex)}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center"
+                  >
+                    <FiDownload className="mr-2" />
+                    Download
+                  </button>
+                </div>
               </div>
             </div>
           )}

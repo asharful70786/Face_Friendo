@@ -11,6 +11,7 @@ import Navbar from "./components/Navbar";
 import { AuthProvider } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ import
 
+
 function App() {
   return (
     <AuthProvider>
@@ -48,6 +49,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          
           <Route
              path="/admin-upload"
              element={

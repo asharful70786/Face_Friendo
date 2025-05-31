@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+
 const AboutUser = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,9 +58,12 @@ const AboutUser = () => {
             <h1 className="text-5xl font-bold text-gray-800">
               {userData?.name || "User"}
             </h1>
-            <p className="text-xl text-amber-700 font-medium">
-              {userData?.title || "Member"}
-            </p>
+           <p className="text-xl font-semibold text-neutral-content">
+          Role:
+             <span className="ml-2 badge badge-lg badge-warning text-base font-bold">
+            {userData?.role || "Member"}
+           </span>
+          </p>
             
             <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
               <div className="bg-white bg-opacity-80 px-6 py-3 rounded-lg shadow-sm">
