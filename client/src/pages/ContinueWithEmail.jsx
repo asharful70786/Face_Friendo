@@ -1,55 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const Login = () => {
-  const [step, setStep] = useState('email'); // 'email', 'otp', 'done'
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
-  const [message, setMessage] = useState('');
+const EmailAuth = () => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    otp: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const handleEmailSubmit = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setMessage("");
+  };
+
+  const handleEmailSend = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
     try {
-      const res = await fetch('http://localhost:4000/api/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const res = await fetch("http://localhost:3000/user/register/email", {
+          credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+        }),
       });
       const data = await res.json();
-      if (res.ok) {
-        setMessage('OTP sent to your email.');
-        setStep('otp');
-      } else {
-        setMessage(data.message || 'Something went wrong.');
-      }
-    } catch (error) {
-      setMessage('Network error.');
+      setMessage(data.message);
+      if (res.ok) setStep(2);
+    } catch (err) {
+      setMessage("Failed to send OTP");
     }
     setLoading(false);
   };
 
-  const handleOtpSubmit = async (e) => {
+  const handleOtpVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
     try {
-      const res = await fetch('http://localhost:4000/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
+      const res = await fetch("http://localhost:3000/user/verify/email-otp", {
+          credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.email,
+          otp: formData.otp,
+        }),
       });
       const data = await res.json();
-      if (res.ok) {
-        setMessage('OTP verified. You can now log in.');
-        setStep('login');
-      } else {
-        setMessage(data.message || 'OTP verification failed.');
-      }
-    } catch (error) {
-      setMessage('Network error.');
+      setMessage(data.message);
+      if (res.ok) setStep(3);
+    } catch (err) {
+      setMessage("OTP verification failed");
+    }
+    setLoading(false);
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/user/register/user-email", {
+          credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const data = await res.json();
+      setMessage(data.message);
+      if (res.ok) setStep(4);
+    } catch (err) {
+      setMessage("Registration failed");
     }
     setLoading(false);
   };
@@ -57,85 +89,124 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
     try {
-      const res = await fetch('http://localhost:4000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // to send cookies
-        body: JSON.stringify({ email, password }),
+      const res = await fetch("http://localhost:3000/user/email-login", {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
       const data = await res.json();
+      setMessage(data.message);
       if (res.ok) {
-        setMessage('Login successful.');
-        setStep('done');
-      } else {
-        setMessage(data.message || 'Login failed.');
+        console.log("Login successful");
+        // Optional: navigate to dashboard
       }
-    } catch (error) {
-      setMessage('Network error.');
+    } catch (err) {
+      setMessage("Login failed");
     }
     setLoading(false);
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow rounded mt-10 space-y-4">
-      <h2 className="text-2xl font-bold text-center">Login / OTP Auth</h2>
-      {message && <p className="text-center text-sm text-blue-600">{message}</p>}
+    <div className="max-w-md mx-auto mt-10 p-6 rounded-xl shadow-md bg-base-200">
+      <h2 className="text-2xl font-bold mb-6 text-center">Email Auth Flow</h2>
 
-      {step === 'email' && (
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <input
-            type="email"
-            className="w-full p-2 border rounded"
-            placeholder="Enter your email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
-            {loading ? 'Sending OTP...' : 'Send OTP'}
-          </button>
-        </form>
-      )}
-
-      {step === 'otp' && (
-        <form onSubmit={handleOtpSubmit} className="space-y-4">
+      {step === 1 && (
+        <form onSubmit={handleEmailSend} className="space-y-4">
           <input
             type="text"
-            className="w-full p-2 border rounded"
-            placeholder="Enter OTP"
+            name="name"
+            placeholder="Your Name"
+            className="input input-bordered w-full"
+            value={formData.name}
+            onChange={handleChange}
             required
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
           />
-          <button type="submit" className="w-full bg-green-600 text-white p-2 rounded">
-            {loading ? 'Verifying OTP...' : 'Verify OTP'}
+          <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            className="input input-bordered w-full"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+          <button className="btn btn-primary w-full" disabled={loading}>
+            {loading ? "Sending OTP..." : "Send OTP"}
           </button>
         </form>
       )}
 
-      {step === 'login' && (
-        <form onSubmit={handleLogin} className="space-y-4">
+      {step === 2 && (
+        <form onSubmit={handleOtpVerify} className="space-y-4">
+          <input
+            type="text"
+            name="otp"
+            placeholder="Enter OTP"
+            className="input input-bordered w-full"
+            value={formData.otp}
+            onChange={handleChange}
+            required
+          />
+          <button className="btn btn-primary w-full" disabled={loading}>
+            {loading ? "Verifying OTP..." : "Verify OTP"}
+          </button>
+        </form>
+      )}
+
+      {step === 3 && (
+        <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="password"
-            className="w-full p-2 border rounded"
-            placeholder="Enter password"
+            name="password"
+            placeholder="Create Password"
+            className="input input-bordered w-full"
+            value={formData.password}
+            onChange={handleChange}
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="submit" className="w-full bg-purple-600 text-white p-2 rounded">
-            {loading ? 'Logging in...' : 'Login'}
+          <button className="btn btn-success w-full" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
       )}
 
-      {step === 'done' && (
-        <p className="text-center text-green-700 font-semibold">🎉 You're logged in!</p>
+      {step === 4 && (
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="input input-bordered w-full"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="input input-bordered w-full"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+          <button className="btn btn-accent w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+      )}
+
+      {message && (
+        <div className="mt-4 text-sm font-medium text-center">{message}</div>
       )}
     </div>
   );
 };
 
-export default Login;
+export default EmailAuth;
