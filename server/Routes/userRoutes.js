@@ -2,21 +2,29 @@ import express from 'express';
 import User from '../Models/userModel.js';
 import sendMail from '../Services/sendMailOtp.js';
 import OTP from '../Models/otpModel.js';
+import path from 'path';
+import multer from 'multer';
 import bcrypt from 'bcrypt';
 import twilio from 'twilio';
+import fs from 'fs';
 import { normalizeNumber } from '../utils/normalizeNumber.js';
 import { createSessionAndSetCookie } from '../utils/sessionHandler.js';
 import limiter from '../MiddleWares/RateLimitMiddleWare.js';
-
-const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import { fileURLToPath } from 'url';
+import UserFace from '../Models/UserFace.js';
+import { authMiddleWare } from '../MiddleWares/authMiddleWare.js';
+import RoleAuthCheck from '../MiddleWares/RoleAuthCheck.js';
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 
+const router = express.Router();
 
 
-router.post("/register/email", async (req, res) => {
+router.post("/user/register/email", async (req, res) => {
   const { name, email } = req.body;
 
   if (!name || !email) return res.status(400).json({ message: "name and email is required" });
@@ -35,7 +43,7 @@ router.post("/register/email", async (req, res) => {
   }
 });
 
-router.post("/verify/email-otp", async (req, res) => {
+router.post("/user/verify/email-otp", async (req, res) => {
   try {
     const { email, otp } = req.body
     if (!otp || !email) return res.status(400).json({ message: "otp and email is required" })
@@ -57,7 +65,7 @@ router.post("/verify/email-otp", async (req, res) => {
   }
 })
 
-router.post("/register/user-email", async (req, res) => {
+router.post("/user/register/user-email", async (req, res) => {
   const { name, email, password } = req.body;
   try {
     if (!name || !email || !password) {
@@ -92,7 +100,7 @@ router.post("/register/user-email", async (req, res) => {
 })
 
 
-router.post("/email-login", limiter, async (req, res, next) => {
+router.post("/user/email-login", limiter, async (req, res, next) => {
   const { sid } = req.signedCookies;
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ message: "email and password is required" });
@@ -112,7 +120,7 @@ router.post("/email-login", limiter, async (req, res, next) => {
 
 
 // Send OTP to phone number
-router.post('/phone/send-otp', limiter, async (req, res) => {
+router.post('/user/phone/send-otp', limiter, async (req, res) => {
   const { phone, email } = req.body;
   if (!phone || !email) return res.status(400).json({ success: false, error: 'phone number & email must be required' });
   const phoneNumber = normalizeNumber(phone);
@@ -134,7 +142,7 @@ router.post('/phone/send-otp', limiter, async (req, res) => {
 });
 
 // Verify OTP
-router.post('/phone/verify-otp', async (req, res) => {
+router.post('/user/phone/verify-otp', async (req, res) => {
   const { phone, code, email, name } = req.body
 
   if (!phone || !code || !email) return res.status(400).json({ success: false, error: 'phone number  , email & code are required' });
@@ -161,7 +169,7 @@ router.post('/phone/verify-otp', async (req, res) => {
   }
 });
 
-router.post("/phone/login/number", async (req, res) => {
+router.post("/user/phone/login/number", async (req, res) => {
   const { phone, email } = req.body;
   if (!phone || !email) return res.status(400).json({ success: false, error: 'phone number & email must be required' });
   const phoneNumber = normalizeNumber(phone);
@@ -174,6 +182,57 @@ router.post("/phone/login/number", async (req, res) => {
   } catch (err) {
     console.error('Login Error:', err);
     return res.status(500).json({ success: false, error: err.message });
+  }
+});
+//admin
+
+
+// SETUP MULTER FOR FILE UPLOAD
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, '../public/uploads');
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, 'image-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage });
+
+// POST route for uploading multiple images
+router.post('/api/upload', authMiddleWare, RoleAuthCheck, upload.array('images', 10), (req, res) => {
+  try {
+    const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+    return res.status(200).json({ imagePaths });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Upload failed' });
+  }
+});
+
+// POST route to save face descriptors
+router.post('/api/save-bulk-face', authMiddleWare, RoleAuthCheck, async (req, res) => {
+  try {
+    const { faces } = req.body;
+    if (!faces || !Array.isArray(faces)) {
+      return res.status(400).json({ message: 'Invalid data' });
+    }
+
+    for (const face of faces) {
+      const newFace = new UserFace({
+        name: face.name,
+        descriptor: face.descriptor,
+        imageUrl: face.imageUrl,
+      });
+      await newFace.save();
+    }
+
+    return res.status(200).json({ message: 'Faces saved successfully' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Saving faces failed' });
   }
 });
 

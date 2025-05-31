@@ -14,7 +14,7 @@ const AdminFaceUpload = () => {
       try {
         const MODEL_URL = "/models";
         await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+          faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
           faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
           faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         ]);
@@ -45,13 +45,15 @@ const AdminFaceUpload = () => {
       const formData = new FormData();
       selectedFiles.forEach((file) => formData.append("images", file));
 
-      // Upload images first
-      const uploadRes = await fetch("http://localhost:3000/api/upload", {
-        credentials: "include",
-        method: "POST",
-        body: formData,
-      });
-      
+    
+ const uploadRes = await fetch("http://localhost:3000/api/upload", {
+  method: "POST",
+  credentials: "include",
+  body: formData,
+});
+
+
+
       if (!uploadRes.ok) {
         throw new Error("Failed to upload images");
       }
@@ -64,25 +66,28 @@ const AdminFaceUpload = () => {
       for (let i = 0; i < selectedFiles.length; i++) {
         const img = imageRefs.current[i];
 
-        const detection = await faceapi
-          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+        const detections = await faceapi
+          .detectAllFaces(img, new faceapi.SsdMobilenetv1Options())
           .withFaceLandmarks()
-          .withFaceDescriptor();
+          .withFaceDescriptors();
 
-        if (detection) {
-          const descriptor = Array.from(detection.descriptor);
-          const name = prompt(`Enter name for image ${selectedFiles[i].name}`);
-          if (!name || name.trim() === "") {
-            alert("Name cannot be empty. This face will be skipped.");
-            continue;
-          }
+        // if (detections.length === 0) {
+        //   alert(`No face detected in ${selectedFiles[i].name}. This image will be skipped.`);
+        //   continue;
+        // }
+
+        for (let j = 0; j < detections.length; j++) {
+          const descriptor = Array.from(detections[j].descriptor);
+          // const name = prompt(`Enter name for face ${j + 1} in ${selectedFiles[i].name}`);
+          // if (!name || name.trim() === "") {
+          //   alert("Name cannot be empty. This face will be skipped.");
+          //   continue;
+          // }
           detectedFaces.push({
-            name,
+       
             descriptor,
             imageUrl: imagePaths[i],
           });
-        } else {
-          alert(`No face detected in ${selectedFiles[i].name}. This image will be skipped.`);
         }
       }
 
@@ -91,7 +96,7 @@ const AdminFaceUpload = () => {
         return;
       }
 
-      // Send descriptors + imageUrls to backend
+  
       const saveRes = await fetch("http://localhost:3000/api/save-bulk-face", {
         credentials: "include",
         method: "POST",
@@ -105,7 +110,7 @@ const AdminFaceUpload = () => {
         throw new Error("Failed to save face data");
       }
 
-      alert(`Successfully uploaded ${detectedFaces.length} faces!`);
+      // alert(`Successfully uploaded ${detectedFaces.length} faces!`);
       setFaces(detectedFaces);
       setSelectedFiles([]);
     } catch (err) {
@@ -121,7 +126,7 @@ const AdminFaceUpload = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-2xl font-bold mb-2 text-gray-800">Face Registration Portal</h2>
         <p className="text-gray-600 mb-4">Upload images to register new faces in the recognition system</p>
-        
+
         <div className="alert alert-warning mb-6">
           <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -141,7 +146,7 @@ const AdminFaceUpload = () => {
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Images</label>
             <input
-              type="file" 
+              type="file"
               multiple
               accept="image/*"
               onChange={handleFileChange}
@@ -207,7 +212,7 @@ const AdminFaceUpload = () => {
                 </div>
                 <div className="p-3 bg-gray-50">
                   <p className="font-medium text-gray-800 truncate">{face.name}</p>
-                  <p className="text-xs text-gray-500">ID: {i+1}</p>
+                  <p className="text-xs text-gray-500">ID: {i + 1}</p>
                 </div>
               </div>
             ))}

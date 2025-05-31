@@ -3,7 +3,7 @@ import Session from "../Models/sessionModel.js";
 export const createSessionAndSetCookie = async (userId, res) => {
   const session = await Session.create({ userId });
 
-  const userSessions = await Session.find({ userId }).sort({ createdAt: 1 });
+  const userSessions = await Session.find({ userId });
 
   if (userSessions.length > 2) {
     const oldest = userSessions[0];
