@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as faceapi from "face-api.js";
+import { toast } from "react-toastify";
 
 const AdminFaceUpload = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -12,6 +13,7 @@ const AdminFaceUpload = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
+        toast.info("Loading face detection models...");
         const MODEL_URL = "/models";
         await Promise.all([
           faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
@@ -19,8 +21,9 @@ const AdminFaceUpload = () => {
           faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         ]);
         setModelsLoaded(true);
+        toast.success("Face detection models loaded successfully!");
       } catch (err) {
-        console.error("Failed to load models:", err);
+        toast.error("Failed to load face detection models");
       }
     };
     loadModels();
@@ -28,41 +31,48 @@ const AdminFaceUpload = () => {
 
   const handleFileChange = (e) => {
     if (e.target.files.length > 10) {
-      alert("Please select up to 10 images at a time for better performance.");
+      toast.warning("Please select up to 10 images at a time for better performance.");
       return;
     }
     setSelectedFiles(Array.from(e.target.files));
+    toast.info(`${e.target.files.length} image(s) selected.`);
   };
 
   const handleUpload = async () => {
     if (!modelsLoaded) {
-      alert("Face detection models are still loading. Please wait a moment.");
+      toast.warning("Face detection models are still loading. Please wait a moment.");
+      return;
+    }
+
+    if (selectedFiles.length === 0) {
+      toast.warning("Please select images before uploading.");
       return;
     }
 
     setLoading(true);
+    toast.info("Uploading images...");
     try {
       const formData = new FormData();
       selectedFiles.forEach((file) => formData.append("images", file));
 
-    
- const uploadRes = await fetch("http://localhost:3000/api/upload", {
-  method: "POST",
-  credentials: "include",
-  body: formData,
-});
-
-
+      const uploadRes = await fetch("http://localhost:3000/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
       if (!uploadRes.ok) {
+        toast.error("Failed to upload images to server.");
         throw new Error("Failed to upload images");
       }
 
+      toast.success("Images uploaded successfully.");
       const uploadData = await uploadRes.json();
       const imagePaths = uploadData.imagePaths;
 
       const detectedFaces = [];
 
+      toast.info("Detecting faces in the uploaded images...");
       for (let i = 0; i < selectedFiles.length; i++) {
         const img = imageRefs.current[i];
 
@@ -71,20 +81,14 @@ const AdminFaceUpload = () => {
           .withFaceLandmarks()
           .withFaceDescriptors();
 
-        // if (detections.length === 0) {
-        //   alert(`No face detected in ${selectedFiles[i].name}. This image will be skipped.`);
-        //   continue;
-        // }
+        if (detections.length === 0) {
+          toast.error(`No face detected in ${selectedFiles[i].name}. This image will be skipped.`);
+          continue;
+        }
 
         for (let j = 0; j < detections.length; j++) {
           const descriptor = Array.from(detections[j].descriptor);
-          // const name = prompt(`Enter name for face ${j + 1} in ${selectedFiles[i].name}`);
-          // if (!name || name.trim() === "") {
-          //   alert("Name cannot be empty. This face will be skipped.");
-          //   continue;
-          // }
           detectedFaces.push({
-       
             descriptor,
             imageUrl: imagePaths[i],
           });
@@ -92,11 +96,11 @@ const AdminFaceUpload = () => {
       }
 
       if (detectedFaces.length === 0) {
-        alert("No valid faces detected in any of the uploaded images.");
+        toast.error("No valid faces detected in any of the uploaded images.");
         return;
       }
 
-  
+      toast.info("Saving detected face data...");
       const saveRes = await fetch("http://localhost:3000/api/save-bulk-face", {
         credentials: "include",
         method: "POST",
@@ -107,15 +111,16 @@ const AdminFaceUpload = () => {
       });
 
       if (!saveRes.ok) {
+        toast.error("Failed to save face data.");
         throw new Error("Failed to save face data");
       }
 
-      // alert(`Successfully uploaded ${detectedFaces.length} faces!`);
+      toast.success(`Successfully registered ${detectedFaces.length} face(s).`);
       setFaces(detectedFaces);
       setSelectedFiles([]);
     } catch (err) {
       console.error(err);
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     } finally {
       setLoading(false);
     }

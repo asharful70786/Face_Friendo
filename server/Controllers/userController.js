@@ -6,9 +6,10 @@ import bcrypt from 'bcrypt';
 import { normalizeNumber } from '../utils/normalizeNumber.js';
 import { createSessionAndSetCookie } from '../utils/sessionHandler.js';
 import UserFace from '../Models/UserFace.js';
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 
 export const sendEmail_otp = async (req, res) => {
@@ -170,8 +171,11 @@ export const login_Via_PhoneNumber = async (req, res) => {
 
 export const uploadImages = (req, res) => {
   try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
     const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
-    return res.status(200).json({ imagePaths });
+    return res.status(200).json({ message: 'Images uploaded successfully', imagePaths });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Upload failed' });

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import {  toast } from 'react-toastify';
 
 const EmailAuth = () => {
   const [step, setStep] = useState(1);
@@ -32,9 +33,11 @@ const EmailAuth = () => {
       });
       const data = await res.json();
       setMessage(data.message);
+      toast.success(data.message);
       if (res.ok) setStep(2);
     } catch (err) {
       setMessage("Failed to send OTP");
+      toast.error("Failed to send OTP");
     }
     setLoading(false);
   };
@@ -55,9 +58,11 @@ const EmailAuth = () => {
       });
       const data = await res.json();
       setMessage(data.message);
+      toast.success(data.message);
       if (res.ok) setStep(3);
     } catch (err) {
       setMessage("OTP verification failed");
+      toast.error("OTP verification failed");
     }
     setLoading(false);
   };
@@ -79,9 +84,11 @@ const EmailAuth = () => {
       });
       const data = await res.json();
       setMessage(data.message);
+      toast.success(data.message);
       if (res.ok) setStep(4);
     } catch (err) {
       setMessage("Registration failed");
+      toast.error("Registration failed");
     }
     setLoading(false);
   };
@@ -103,11 +110,13 @@ const EmailAuth = () => {
       const data = await res.json();
       setMessage(data.message);
       if (res.ok) {
-        console.log("Login successful");
+        setMessage("Login successful");
+        toast.success("Login successful");
         // Optional: navigate to dashboard
       }
     } catch (err) {
       setMessage("Login failed");
+      toast.error("Login failed");
     }
     setLoading(false);
   };

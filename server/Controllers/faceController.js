@@ -23,7 +23,7 @@ export const saveFace = async (req, res) => {
   }
 }
 
-export const  getAllFaces =  async (req, res) => {
+export const getAllFaces = async (req, res) => {
   const faces = await UserFace.find();
   res.json(faces);
 }
@@ -35,36 +35,30 @@ export const matchFace = async (req, res) => {
     return res.status(400).json({ message: "Invalid descriptor" });
   }
 
-  const threshold = 0.9; // can adjust based on real-world tests
-  const minimumSimilarity = 20; // lowered to allow partial matches
+  const threshold = 0.9; 
   const matches = [];
 
   const faces = await UserFace.find();
   for (let face of faces) {
     const distance = calculateDistance(descriptor, face.descriptor);
     const similarity = (1 - (distance / threshold)) * 100;
-
-    if (similarity >= minimumSimilarity) {
+    if (similarity >= 40) {
       matches.push({
-        _id: face._id,
         name: face.name,
+        distance,
+        similarity: similarity.toFixed(2),
         imageUrl: face.imageUrl || null,
-        distance: distance.toFixed(4),
-        similarity: similarity.toFixed(2)
+        _id: face._id
       });
     }
   }
-
-  // Sort matches by highest similarity
-  matches.sort((a, b) => b.similarity - a.similarity);
 
   if (matches.length > 0) {
     return res.json({ match: true, matches });
   } else {
     return res.json({ match: false, message: "No similar faces found." });
   }
-};
-
+}
 const calculateDistance = (d1, d2) => {
   let sum = 0;
   for (let i = 0; i < d1.length; i++) {
