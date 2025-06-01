@@ -17,7 +17,7 @@ const Navbar = () => {
   return (
     <nav className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md px-6 py-3 flex justify-between items-center">
       <Link to="/" className="text-2xl font-bold tracking-wide hover:text-yellow-300 transition-all">
-        FaceMatch
+       Face Laxious  
       </Link>
 
       <div className="space-x-4 flex items-center">
