@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ import
+import Footer from "./components/Footer";
 
 
 function App() {
@@ -68,6 +69,7 @@ function App() {
             }
           />
         </Routes>
+        <Footer/>
       </div>
     </AuthProvider>
   );
