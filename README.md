@@ -1,6 +1,6 @@
 ## 🚀 What It Does
 
-**Face Laxious**  is a face recognition web app designed for photographers and travel agencies. owner can upload event photos, while users simply log in and scan their face via webcam. The app uses face-api.js to convert the scan into a 128-length descriptor and matches it with descriptors stored in the database, instantly showing users all photos they appear in—no manual search needed. 
+**Face Laxious**  is a face recognition web app designed for photographers and travel agencies. owner can upload event photos, while users simply log in and scan their face via webcam. The app uses face-api.js to convert the scan into a 128-length descriptor and matches it with descriptors stored in the database, instantly showing users all photos they appear in.
 
 No more manual searching — just scan and get your pictures.
 
