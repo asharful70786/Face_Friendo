@@ -92,7 +92,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                    FaceVision
+                    Face Laxious
                   </h3>
                   <p className="text-sm text-gray-400 font-medium">Enterprise AI Platform</p>
                 </div>
@@ -236,7 +236,7 @@ const Footer = () => {
           <div className="container mx-auto px-6 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="text-gray-400 text-sm text-center md:text-left">
-                © {currentYear} FaceVision Enterprise. All rights reserved.
+                © {currentYear}  Face Laxious Enterprise. All rights reserved.
               </div>
               
               <div className="flex items-center space-x-6">
