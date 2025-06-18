@@ -19,7 +19,7 @@ await connectDB();
 app.use(helmet());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://face-laxious.vercel.app',
   credentials: true
 }));
 app.use((req, res, next) => {
