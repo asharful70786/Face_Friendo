@@ -354,9 +354,9 @@ const FaceCapture = () => {
                       <FiUser className="mr-2" />
                       Matched Faces
                     </h3>
-                    <span className="bg-white bg-opacity-20 px-2 py-1 rounded-full text-xs text-white">
-                      {matches.length} found
-                    </span>
+                    <span className="bg-black bg-opacity-10 px-2 py-1 rounded-full text-xs text-gray-100">
+  {matches.length} found
+</span>
                   </div>
                 </div>
                 <div className="p-5">
