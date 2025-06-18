@@ -7,19 +7,19 @@ import { authMiddleWare } from "../MiddleWares/authMiddleWare.js";
 const router = express.Router();
 
 // Setup multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/uploads');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/uploads');
+//   },
+//   filename: (req, file, cb) => {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+//     cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+//   }
+// });
 
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
-router.post('/save-face', upload.single('image'), saveFace);
+// router.post('/save-face', upload.single('image'), saveFace);
 
 
 router.get('/faces', authMiddleWare, getAllFaces);

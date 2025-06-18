@@ -29,41 +29,43 @@ export const getAllFaces = async (req, res) => {
 }
 
 export const matchFace = async (req, res) => {
-  const { descriptor } = req.body;
+  try {
+    const { descriptor } = req.body;
 
-  if (!descriptor || !Array.isArray(descriptor)) {
-    return res.status(400).json({ message: "Invalid descriptor" });
-  }
-
-  const threshold = 0.9; 
-  const matches = [];
-
-  const faces = await UserFace.find();
-  for (let face of faces) {
-    const distance = calculateDistance(descriptor, face.descriptor);
-    const similarity = (1 - (distance / threshold)) * 100;
-    if (similarity >= 40) {
-      matches.push({
-        name: face.name,
-        distance,
-        similarity: similarity.toFixed(2),
-        imageUrl: face.imageUrl || null,
-        _id: face._id
-      });
+    if (!descriptor || !Array.isArray(descriptor)) {
+      return res.status(400).json({ message: "Invalid descriptor" });
     }
-  }
 
-  if (matches.length > 0) {
-    return res.json({ match: true, matches });
-  } else {
-    return res.json({ match: false, message: "No similar faces found." });
+    const threshold = 0.9;
+    const faces = await UserFace.find();
+
+    const matches = faces.map(face => {
+      const distance = calculateDistance(descriptor, face.descriptor);
+      const similarity = (1 - (distance / threshold)) * 100;
+
+      return similarity >= 40
+        ? {
+            name: face.name,
+            distance,
+            similarity: similarity.toFixed(2),
+            imageUrl: face.imageUrl || null,
+            _id: face._id
+          }
+        : null;
+    }).filter(Boolean);
+
+    if (matches.length > 0) {
+      return res.json({ match: true, matches });
+    } else {
+      return res.json({ match: false, message: "No similar faces found." });
+    }
+
+  } catch (error) {
+    console.error("Error matching face:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
+
 const calculateDistance = (d1, d2) => {
-  let sum = 0;
-  for (let i = 0; i < d1.length; i++) {
-    const diff = d1[i] - d2[i];
-    sum += diff * diff;
-  }
-  return Math.sqrt(sum);
+  return Math.sqrt(d1.reduce((sum, val, i) => sum + Math.pow(val - d2[i], 2), 0));
 };

@@ -8,7 +8,10 @@ const __dirname = path.dirname(__filename);
 import { fileURLToPath } from 'url';
 import { authMiddleWare } from '../MiddleWares/authMiddleWare.js';
 import RoleAuthCheck from '../MiddleWares/RoleAuthCheck.js';
-import { login_Via_PhoneNumber, loginViaEmail, registerUsing_Email, save_Faces_Descriptor, sendEmail_otp, sendOtp_PhoneNumber, uploadImages, verifyEmail_Otp, verifyOTO_PhoneNumber } from '../Controllers/userController.js';
+import { login_Via_PhoneNumber, loginViaEmail, registerUsing_Email,
+  //  save_Faces_Descriptor,
+    sendEmail_otp, sendOtp_PhoneNumber, uploadImages, verifyEmail_Otp, verifyOTO_PhoneNumber } from '../Controllers/userController.js';
+
 
 
 
@@ -34,23 +37,11 @@ router.post("/user/phone/login/number", login_Via_PhoneNumber);
 
 
 // SETUP MULTER FOR FILE UPLOAD
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, '../public/uploads');
-    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, 'Image-' + uniqueName + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage });
-
+const upload = multer({ storage: multer.memoryStorage() });
 router.post('/api/upload', authMiddleWare, RoleAuthCheck, upload.array('images', 10), uploadImages);
 
 // POST route to save face descriptors
-router.post('/api/save-bulk-face', authMiddleWare, RoleAuthCheck, save_Faces_Descriptor);
+// router.post('/api/save-bulk-face', authMiddleWare, RoleAuthCheck, save_Faces_Descriptor);
 
 export default router;
 

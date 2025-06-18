@@ -1,5 +1,6 @@
 import twilio from 'twilio';
 import User from '../Models/userModel.js';
+import fs from 'fs';
 import sendMail from '../Services/sendMailOtp.js';
 import OTP from '../Models/otpModel.js';
 import bcrypt from 'bcrypt';
@@ -7,6 +8,8 @@ import { normalizeNumber } from '../utils/normalizeNumber.js';
 import { createSessionAndSetCookie } from '../utils/sessionHandler.js';
 import UserFace from '../Models/UserFace.js';
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+import { uploadImage } from "../Services/cloudinaryServices.js";
+
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
@@ -31,7 +34,7 @@ export const sendEmail_otp = async (req, res) => {
   }
 }
 
-export const sendOtp_PhoneNumber =  async (req, res) => {
+export const sendOtp_PhoneNumber = async (req, res) => {
   const { phone, email } = req.body;
   if (!phone || !email) return res.status(400).json({ success: false, error: 'phone number & email must be required' });
   const phoneNumber = normalizeNumber(phone);
@@ -101,7 +104,7 @@ export const verifyOTO_PhoneNumber = async (req, res) => {
   }
 }
 
-export const registerUsing_Email =  async (req, res) => {
+export const registerUsing_Email = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     if (!name || !email || !password) {
@@ -169,38 +172,47 @@ export const login_Via_PhoneNumber = async (req, res) => {
   }
 }
 
-export const uploadImages = (req, res) => {
+// cloudinary intregration
+export const uploadImages = async (req, res) => {
   try {
+    const { faces } = req.body;
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No files uploaded' });
     }
-    const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
-    return res.status(200).json({ message: 'Images uploaded successfully', imagePaths });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Upload failed' });
-  }
-}
 
-export const save_Faces_Descriptor = async (req, res) => {
-  try {
-    const { faces } = req.body;
-    if (!faces || !Array.isArray(faces)) {
-      return res.status(400).json({ message: 'Invalid data' });
+    const parsedFaces = JSON.parse(faces); // expected: [{ descriptor, imageIndex }, ...]
+
+    if (!Array.isArray(parsedFaces)) {
+      return res.status(400).json({ message: 'Invalid face descriptor data' });
     }
 
-    for (const face of faces) {
+    // Upload all images to Cloudinary
+    const uploadResults = await Promise.all(
+      req.files.map(file => uploadImage(file))
+    );
+
+    const imageUrls = uploadResults.map(img => img.secure_url);
+
+    // Save each face with the corresponding image URL
+    for (const face of parsedFaces) {
+      const imageUrl = imageUrls[face.imageIndex]; // link face to the correct image
       const newFace = new UserFace({
-        name: face.name,
+        name: face.name || "Unknown",
         descriptor: face.descriptor,
-        imageUrl: face.imageUrl,
+        imageUrl,
       });
       await newFace.save();
     }
 
-    return res.status(200).json({ message: 'Faces saved successfully' });
+    return res.status(200).json({
+      message: 'Images and face descriptors saved successfully',
+      count: parsedFaces.length,
+      imageUrls,
+    });
+
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Saving faces failed' });
+    console.error("Upload/Save failed:", err);
+    return res.status(500).json({ message: 'Upload failed', error: err.message });
   }
-}
+};
