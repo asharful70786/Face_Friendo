@@ -79,6 +79,9 @@ GOOGLE_CLIENT_SECRET=youGoogle-client_secret
 TWILIO_ACCOUNT_SID=your-twilio-sid
 TWILIO_AUTH_TOKEN=your-TWILIO_AUTH_TOKEN
 TWILIO_VERIFY_SID=your-TWILIO_VERIFY_SID
+Cloudinary_api_key=Cloudinary_api_ke
+Cloudinary_api_secret=Cloudinary_api_secret
+Cloudinary_cloud_name=Cloudinary_cloud_name
 ```
 
 ### 4. Run the application
