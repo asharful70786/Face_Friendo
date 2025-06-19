@@ -14,6 +14,111 @@ import { uploadImage } from "../Services/cloudinaryServices.js";
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
 
+//phone section 
+
+export const sendOtp_PhoneNumber = async (req, res) => {
+  const { phone } = req.body;
+  const phoneNumber = normalizeNumber(phone);
+  const existingUser = await User.findOne({ phoneNumber });
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      error: 'User already registered. Please login using your phone and password.',
+    });
+  }
+  try {
+    const verification = await client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SID)
+      .verifications.create({ to: phoneNumber, channel: 'sms' });
+
+    return res.json({ success: true, sid: verification.sid });
+  } catch (err) {
+    console.error('OTP Send Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+export const verifyOTP_PhoneNumber = async (req, res) => {
+  const { phone, otp } = req.body;
+
+  if (!phone) {
+    return res.status(400).json({ success: false, error: 'required phone Number ' });
+  }
+  const phoneNumber = normalizeNumber(phone);
+
+  try {
+    const existingUser = await User.findOne({ phoneNumber });
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: 'Phone number already registered. Please login.' });
+    }
+
+    const verificationCheck = await client.verify.v2.services(process.env.TWILIO_VERIFY_SID)
+      .verificationChecks.create({ to: phoneNumber, code: otp });
+
+    if (verificationCheck.status === 'approved') {
+      return res.status(200).json({ message: "otp verified successfully" });
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+  } catch (err) {
+    console.error('OTP Verify Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+export const registerUsing_PhoneNumber = async (req, res) => {
+  const { name, phone, password } = req.body;
+  try {
+    if (!name || !phone || !password) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+    const phoneNumber = normalizeNumber(phone);
+    const existingUser = await User.findOne({ phoneNumber });
+    if (existingUser) {
+      return res.status(400).json({ message: "Phone number already registered. Please login." });
+    }
+    const user = await User.create({ name, phoneNumber, password });
+    await createSessionAndSetCookie(user._id, res);
+    return res.status(200).json({ message: "Registered and logged in successfully" });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return res.status(500).json({ message: "Failed to register user" ,error   : error.message });
+  }
+}
+
+export const login_Via_PhoneNumber = async (req, res) => {
+  const { phone, password } = req.body;
+  if (!phone || !password) {
+    return res.status(400).json({ success: false, error: 'Phone number and password are required', });
+  }
+  const phoneNumber = normalizeNumber(phone);
+  try {
+    const user = await User.findOne({ phoneNumber });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'User not found. Please register first.',
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'Incorrect password',
+      });
+    }
+
+    await createSessionAndSetCookie(user._id, res);
+    return res.status(200).json({ message: 'Login successful' });
+  } catch (err) {
+    console.error('Login Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+
+//email  section 
 
 export const sendEmail_otp = async (req, res) => {
   const { name, email } = req.body;
@@ -33,30 +138,6 @@ export const sendEmail_otp = async (req, res) => {
     return res.status(500).json({ message: "something went wrong" });
   }
 }
-
-export const sendOtp_PhoneNumber = async (req, res) => {
-  const { phone } = req.body;
-  const phoneNumber = normalizeNumber(phone);
-  const existingUser = await User.findOne({ phoneNumber });
-  if (existingUser) {
-    return res.status(400).json({
-      success: false,
-      error: 'User already registered. Please login using your phone and password.',
-    });
-  }
-
-  try {
-    const verification = await client.verify.v2
-      .services(process.env.TWILIO_VERIFY_SID)
-      .verifications.create({ to: phoneNumber, channel: 'sms' });
-
-    return res.json({ success: true, sid: verification.sid });
-  } catch (err) {
-    console.error('OTP Send Error:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-};
-
 
 export const verifyEmail_Otp = async (req, res) => {
   try {
@@ -79,37 +160,6 @@ export const verifyEmail_Otp = async (req, res) => {
     return res.status(500).json({ message: "Failed to verify OTP" });
   }
 }
-
-export const verifyOTP_PhoneNumber = async (req, res) => {
-  const { phone, name, otp, password } = req.body;
-
-  if (!phone || !otp || !name || !password) {
-    return res.status(400).json({ success: false, error: 'All fields are required (phone, name, otp, password)' });
-  }
-
-  const phoneNumber = normalizeNumber(phone);
-
-  try {
-    const existingUser = await User.findOne({ phoneNumber });
-    if (existingUser) {
-      return res.status(400).json({ success: false, error: 'Phone number already registered. Please login.' });
-    }
-
-    const verificationCheck = await client.verify.v2.services(process.env.TWILIO_VERIFY_SID)
-      .verificationChecks.create({ to: phoneNumber, code: otp });
-
-    if (verificationCheck.status === 'approved') {
-      const user = await User.create({ phoneNumber, name, password }); 
-      await createSessionAndSetCookie(user._id, res);
-      return res.status(200).json({ message: "Registered and logged in successfully" });
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-  } catch (err) {
-    console.error('OTP Verify Error:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-};
 
 
 export const registerUsing_Email = async (req, res) => {
@@ -164,36 +214,6 @@ export const loginViaEmail = async (req, res, next) => {
   }
 }
 
-export const login_Via_PhoneNumber = async (req, res) => {
-  const { phone, password } = req.body;
-  if (!phone || !password) {
-    return res.status(400).json({ success: false, error: 'Phone number and password are required', });
-  }
-  const phoneNumber = normalizeNumber(phone);
-  try {
-    const user = await User.findOne({ phoneNumber });
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        error: 'User not found. Please register first.',
-      });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        error: 'Incorrect password',
-      });
-    }
-
-    await createSessionAndSetCookie(user._id, res);
-    return res.status(200).json({ message: 'Login successful' });
-  } catch (err) {
-    console.error('Login Error:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-};
 
 
 
@@ -221,7 +241,7 @@ export const uploadImages = async (req, res) => {
 
     // Save each face with the corresponding image URL
     for (const face of parsedFaces) {
-      const imageUrl = imageUrls[face.imageIndex]; 
+      const imageUrl = imageUrls[face.imageIndex];
       const newFace = new UserFace({
         name: face.name || "Unknown",
         descriptor: face.descriptor,

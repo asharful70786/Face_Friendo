@@ -11,6 +11,8 @@ import Navbar from "./components/Navbar";
 import { AuthProvider } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅ import
 import Footer from "./components/Footer";
+import PrivacyPage from "./pages/privacy";
+import Terms from "./pages/Terms";
 
 
 function App() {
@@ -40,6 +42,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/login/phone" element={<PhoneAuth />} />
           <Route path="/register/email" element={<EmailLogin />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="term" element={<Terms />} />
 
           {/* 🔐 Protected Routes */}
           <Route
