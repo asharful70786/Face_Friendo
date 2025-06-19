@@ -10,7 +10,7 @@ import { authMiddleWare } from '../MiddleWares/authMiddleWare.js';
 import RoleAuthCheck from '../MiddleWares/RoleAuthCheck.js';
 import { login_Via_PhoneNumber, loginViaEmail, registerUsing_Email,
   //  save_Faces_Descriptor,
-    sendEmail_otp, sendOtp_PhoneNumber, uploadImages, verifyEmail_Otp, verifyOTO_PhoneNumber } from '../Controllers/userController.js';
+    sendEmail_otp, sendOtp_PhoneNumber, uploadImages, verifyEmail_Otp, verifyOTP_PhoneNumber } from '../Controllers/userController.js';
 
 
 
@@ -30,7 +30,7 @@ router.post("/user/email-login", limiter, loginViaEmail)
 router.post('/user/phone/send-otp', limiter, sendOtp_PhoneNumber);
 
 // Verify OTP
-router.post('/user/phone/verify-otp', verifyOTO_PhoneNumber);
+router.post('/user/phone/verify-otp', verifyOTP_PhoneNumber);
 
 router.post("/user/phone/login/number", login_Via_PhoneNumber);
 //admin
