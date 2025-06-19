@@ -15,8 +15,8 @@ export const createSessionAndSetCookie = async (userId, res) => {
     secure: true,
     domain: '.ashraful.in',
     signed: true,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    sameSite: "none",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   return session;
