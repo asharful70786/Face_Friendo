@@ -25,7 +25,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const res = await fetch("http://localhost:3000/user/register/email", {
+//       const res = await fetch("https://backend.face.ashraful.in/user/register/email", {
 //           credentials: "include",
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
@@ -50,7 +50,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const res = await fetch("http://localhost:3000/user/verify/email-otp", {
+//       const res = await fetch("https://backend.face.ashraful.in/user/verify/email-otp", {
 //           credentials: "include",
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
@@ -75,7 +75,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const res = await fetch("http://localhost:3000/user/register/user-email", {
+//       const res = await fetch("https://backend.face.ashraful.in/user/register/user-email", {
 //           credentials: "include",
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
@@ -101,7 +101,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const res = await fetch("http://localhost:3000/user/email-login", {
+//       const res = await fetch("https://backend.face.ashraful.in/user/email-login", {
 //         credentials: "include",
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },

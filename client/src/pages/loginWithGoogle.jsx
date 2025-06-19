@@ -4,7 +4,7 @@ import { useAuth }  from "../components/AuthContext";
 
 
 function LogWithGoogle() {
-  const BASE_URL = "http://localhost:3000";
+  const BASE_URL = "https://backend.face.ashraful.in";
    const navigate = useNavigate();
    const { checkAuth } = useAuth();
 

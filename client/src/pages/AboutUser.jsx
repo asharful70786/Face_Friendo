@@ -7,7 +7,7 @@ const AboutUser = () => {
 
   async function getDetails() {
     try {
-      const response = await fetch("http://localhost:3000/auth/user-info", {
+      const response = await fetch("https://backend.face.ashraful.in/auth/user-info", {
         credentials: "include",
         method: "POST",
         headers: {

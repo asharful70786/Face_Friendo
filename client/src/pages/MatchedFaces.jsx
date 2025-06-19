@@ -15,7 +15,7 @@ export default function MatchedFaces({ matches }) {
               className="bg-white shadow-md rounded-2xl p-4 flex flex-col items-center border hover:shadow-xl transition-all"
             >
               <img
-                src={`http://localhost:3000${match.imageUrl}`}
+                src={`https://backend.face.ashraful.in${match.imageUrl}`}
                 alt={match.name}
                 className="w-40 h-40 object-cover rounded-xl border"
               />

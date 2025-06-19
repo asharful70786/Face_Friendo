@@ -66,7 +66,7 @@ const FaceCapture = () => {
       }
 
       const descriptor = Array.from(detection.descriptor);
-      const response = await fetch("http://localhost:3000/api/match-face", {
+      const response = await fetch("https://backend.face.ashraful.in/api/match-face", {
         credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },

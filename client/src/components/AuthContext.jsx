@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch("http://localhost:3000/auth/user-info", {
+      const res = await fetch("https://backend.face.ashraful.in/auth/user-info", {
         credentials: "include",
         method: "POST",
         headers: {
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:3000/auth/logout", {
+      await fetch("https://backend.face.ashraful.in/auth/logout", {
         method: "POST",
         credentials: "include",
       });

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../components/AuthContext";
 
-const BaseUrl = "http://localhost:3000";
+const BaseUrl = "https://backend.face.ashraful.in";
 
 const PhoneAuth = () => {
   const { checkAuth } = useAuth();

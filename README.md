@@ -99,7 +99,7 @@ cd client
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173` (frontend) and `http://localhost:3000` (backend).
+The application will be available at `http://localhost:5173` (frontend) and `https://backend.face.ashraful.in` (backend).
 
 ## 📁 Project Structure
 

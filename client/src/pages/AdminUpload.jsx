@@ -96,7 +96,7 @@ const AdminFaceUpload = () => {
       formData.append("faces", JSON.stringify(detectedFaces));
       setProgress(90);
 
-      const res = await fetch("http://localhost:3000/api/upload", {
+      const res = await fetch("https://backend.face.ashraful.in/api/upload", {
         method: "POST",
         credentials: "include",
         body: formData,

@@ -29,7 +29,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("http://localhost:3000/auth/logout", {
+    await fetch("https://backend.face.ashraful.in/auth/logout", {
       method: "POST",
       credentials: "include",
     });
