@@ -10,23 +10,23 @@ export const createSessionAndSetCookie = async (userId, res) => {
     await Session.deleteOne({ _id: oldest._id });
   }
 
-
-  res.cookie("sid", session._id.toString(), {
-    httpOnly: true,
-    signed: true,
-    secure: false,
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
-
+//  localhost 
   // res.cookie("sid", session._id.toString(), {
   //   httpOnly: true,
-  //   secure: true,
-  //   domain: '.ashraful.in',
   //   signed: true,
-  //   sameSite: "none",
+  //   secure: false,
+  //   sameSite: "lax",
   //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   // });
+//  ashraful.in
+  res.cookie("sid", session._id.toString(), {
+    httpOnly: true,
+    secure: true,
+    domain: '.ashraful.in',
+    signed: true,
+    sameSite: "none",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 
   return session;
 };
