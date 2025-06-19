@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema(
     phoneNumber: {
       type: String,
       unique: true,
-      // match: [/^\\+\\d{10,15}$/, "Invalid phone number format"]
     },
     role: {
       type: String,
