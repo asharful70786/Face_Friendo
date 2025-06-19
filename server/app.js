@@ -18,8 +18,9 @@ const __dirname = path.dirname(__filename);
 await connectDB();
 app.use(helmet());
 app.use(cookieParser(process.env.COOKIE_SECRET));
+// https://face-laxious.vercel.app
 app.use(cors({
-  origin: 'https://face-laxious.vercel.app',
+  origin: ["http://localhost:5173", "https://face-laxious.vercel.app"],
   credentials: true
 }));
 app.use((req, res, next) => {
