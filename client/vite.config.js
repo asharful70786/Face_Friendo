@@ -1,10 +1,19 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     tailwindcss(),
-    react()],
-})
+    react(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'googlee143be000ba5d6f8.html', // ✅ Your verification file
+          dest: '' 
+        }
+      ]
+    })
+  ]
+});
