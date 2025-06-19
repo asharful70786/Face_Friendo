@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
       const data = await res.json();
 
-      if (data?.message?.email) {
+      if (data?.message) {
         setIsAuthenticated(true);
         setUser(data.message); // 🧠 Store user data if needed
       } else {
