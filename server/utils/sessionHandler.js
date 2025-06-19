@@ -10,7 +10,7 @@ export const createSessionAndSetCookie = async (userId, res) => {
     await Session.deleteOne({ _id: oldest._id });
   }
 
-//  localhost 
+  //  localhost 
   // res.cookie("sid", session._id.toString(), {
   //   httpOnly: true,
   //   signed: true,
@@ -18,7 +18,7 @@ export const createSessionAndSetCookie = async (userId, res) => {
   //   sameSite: "lax",
   //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   // });
-//  ashraful.in
+  //  ashraful.in
   res.cookie("sid", session._id.toString(), {
     httpOnly: true,
     secure: true,
