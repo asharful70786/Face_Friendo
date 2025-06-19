@@ -31,7 +31,9 @@ app.use((req, res, next) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.json());
-
+app.get("/", (req, res) => {
+  res.send("🚀 Face Laxious backend is live!");
+});
 app.use("/", useRouter);
 app.use("/auth", authRoutes);
 app.use('/api', faceRoutes);
