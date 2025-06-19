@@ -52,12 +52,12 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ isAuthenticated, setIsAuthenticated, user, loading, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  <AuthContext.Provider
+    value={{ isAuthenticated, setIsAuthenticated, user, loading, logout, checkAuth }}
+  >
+    {children}
+  </AuthContext.Provider>
+);
 };
 
 export const useAuth = () => useContext(AuthContext);

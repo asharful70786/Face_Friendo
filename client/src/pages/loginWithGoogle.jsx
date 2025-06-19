@@ -1,10 +1,13 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
+import { useAuth }  from "../components/AuthContext";
 
 
 function LogWithGoogle() {
   const BASE_URL = "http://localhost:3000";
    const navigate = useNavigate();
+   const { checkAuth } = useAuth();
+
 
   return (
     <>
@@ -26,7 +29,7 @@ function LogWithGoogle() {
             } else {
               const data = await response.json();
               console.log("Login success:", data);
-                
+              await checkAuth();
               navigate("/");
             }
           } catch (error) {

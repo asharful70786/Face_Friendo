@@ -1,5 +1,7 @@
 import { useState } from "react";
 import {  toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
+
 
 const EmailAuth = () => {
   const [step, setStep] = useState(1);
@@ -11,6 +13,8 @@ const EmailAuth = () => {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -112,7 +116,7 @@ const EmailAuth = () => {
       if (res.ok) {
         setMessage("Login successful");
         toast.success("Login successful");
-        // Optional: navigate to dashboard
+          navigate("/");
       }
     } catch (err) {
       setMessage("Login failed");
