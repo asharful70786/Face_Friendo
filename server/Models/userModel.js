@@ -26,8 +26,7 @@ const userSchema = new mongoose.Schema(
     phoneNumber: {
       type: String,
       unique: true,
-      sparse: true,
-      match: [/^\+\d{10,15}$/, "Please enter a valid phone number with country code"],
+      // match: [/^\\+\\d{10,15}$/, "Invalid phone number format"]
     },
     role: {
       type: String,

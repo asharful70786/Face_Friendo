@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { authMiddleWare } from '../MiddleWares/authMiddleWare.js';
 import RoleAuthCheck from '../MiddleWares/RoleAuthCheck.js';
 import { login_Via_PhoneNumber, loginViaEmail, registerUsing_Email,
+  registerUsing_PhoneNumber,
   //  save_Faces_Descriptor,
     sendEmail_otp, sendOtp_PhoneNumber, uploadImages, verifyEmail_Otp, verifyOTP_PhoneNumber } from '../Controllers/userController.js';
 
@@ -30,12 +31,13 @@ router.post("/user/email-login", limiter, loginViaEmail)
 router.post('/user/phone/send-otp', limiter, sendOtp_PhoneNumber);
 
 // Verify OTP
+router.post('/user/phone/send-otp', limiter, sendOtp_PhoneNumber);
 router.post('/user/phone/verify-otp', verifyOTP_PhoneNumber);
-
+router.post("/user/phone/register",registerUsing_PhoneNumber );
 router.post("/user/phone/login/number", login_Via_PhoneNumber);
+
+
 //admin
-
-
 // SETUP MULTER FOR FILE UPLOAD
 const upload = multer({ storage: multer.memoryStorage() });
 router.post('/api/upload', authMiddleWare, RoleAuthCheck, upload.array('images', 10), uploadImages);
