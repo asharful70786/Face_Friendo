@@ -20,7 +20,7 @@ app.use(helmet());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 // https://face-laxious.vercel.app
 app.use(cors({
-  origin: "https://face.ashraful.in",
+  origin: ["https://face.ashraful.in", "http://localhost:5173"],
   credentials: true
 }));
 app.use((req, res, next) => {

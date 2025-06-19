@@ -12,7 +12,7 @@ export const authMiddleWare = async (req, res, next) => {
 
     const session = await Session.findById(sid);
     if (!session) {
-       res.clearCookie("sid");
+      res.clearCookie("sid");
       return res.status(401).json({ success: false, error: "Invalid or expired session" });
     }
 

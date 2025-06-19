@@ -8,12 +8,65 @@ import FaceCapture from "./pages/FaceCapture";
 import AdminFaceUpload from "./pages/AdminUpload";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
-import { AuthProvider } from "./components/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute"; // ✅ import
+import { AuthProvider, useAuth } from "./components/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
 import PrivacyPage from "./pages/privacy";
 import Terms from "./pages/Terms";
 
+function AppContent() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl text-white">
+        Checking session...
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        {/*  Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/login/phone" element={<PhoneAuth />} />
+        <Route path="/register/email" element={<EmailLogin />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/term" element={<Terms />} />
+
+        {/*  Protected Routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <FaceCapture />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin-upload"
+          element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminFaceUpload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/about-user"
+          element={
+            <ProtectedRoute>
+              <AboutUser />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+      <Footer />
+    </>
+  );
+}
 
 function App() {
   return (
@@ -36,44 +89,7 @@ function App() {
             boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
           }}
         />
-        <Navbar />
-        <Routes>
-          {/* 🛡️ Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/login/phone" element={<PhoneAuth />} />
-          <Route path="/register/email" element={<EmailLogin />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="term" element={<Terms />} />
-
-          {/* 🔐 Protected Routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <FaceCapture />
-              </ProtectedRoute>
-            }
-          />
-
-          
-          <Route
-             path="/admin-upload"
-             element={
-             <ProtectedRoute requireAdmin={true}>
-            <AdminFaceUpload />
-             </ProtectedRoute>
-              }
-             />
-          <Route
-            path="/about-user"
-            element={
-              <ProtectedRoute>
-                <AboutUser />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-        <Footer/>
+        <AppContent />
       </div>
     </AuthProvider>
   );

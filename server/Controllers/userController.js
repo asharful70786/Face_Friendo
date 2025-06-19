@@ -78,11 +78,13 @@ export const registerUsing_PhoneNumber = async (req, res) => {
       return res.status(400).json({ message: "Phone number already registered. Please login." });
     }
     const user = await User.create({ name, phoneNumber, password });
+    console.log(user)
+    console.log(user._id);
     await createSessionAndSetCookie(user._id, res);
     return res.status(200).json({ message: "Registered and logged in successfully" });
   } catch (error) {
     console.error("Error registering user:", error);
-    return res.status(500).json({ message: "Failed to register user" ,error   : error.message });
+    return res.status(500).json({ message: "Failed to register user", error: error.message });
   }
 }
 
@@ -108,7 +110,6 @@ export const login_Via_PhoneNumber = async (req, res) => {
         error: 'Incorrect password',
       });
     }
-
     await createSessionAndSetCookie(user._id, res);
     return res.status(200).json({ message: 'Login successful' });
   } catch (err) {
