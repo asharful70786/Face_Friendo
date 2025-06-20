@@ -29,6 +29,9 @@ app.use((req, res, next) => {
 });
 
 
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ limit: "5mb", extended: true }));
+
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.json());
 app.get("/", (req, res) => {

@@ -40,7 +40,13 @@ router.post("/user/phone/login/number", login_Via_PhoneNumber);
 //admin
 // SETUP MULTER FOR FILE UPLOAD
 const upload = multer({ storage: multer.memoryStorage() });
-router.post('/api/upload', authMiddleWare, RoleAuthCheck, upload.array('images', 10), uploadImages);
+const cpUpload = upload.fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'faces', maxCount: 1 },
+]);
+
+router.post('/api/upload', authMiddleWare, RoleAuthCheck, cpUpload, uploadImages);
+
 
 // POST route to save face descriptors
 // router.post('/api/save-bulk-face', authMiddleWare, RoleAuthCheck, save_Faces_Descriptor);

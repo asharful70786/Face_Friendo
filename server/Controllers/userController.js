@@ -221,26 +221,29 @@ export const loginViaEmail = async (req, res, next) => {
 // cloudinary intregration
 export const uploadImages = async (req, res) => {
   try {
-    const { faces } = req.body;
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: 'No files uploaded' });
+    if (!req.files?.images || req.files.images.length === 0) {
+      return res.status(400).json({ message: 'No image files uploaded' });
     }
 
-    const parsedFaces = JSON.parse(faces); // expected: [{ descriptor, imageIndex }, ...]
+    const faceFileBuffer = req.files?.faces?.[0]?.buffer;
+    if (!faceFileBuffer) {
+      return res.status(400).json({ message: 'No face descriptor file uploaded' });
+    }
+
+    const parsedFaces = JSON.parse(faceFileBuffer.toString());
 
     if (!Array.isArray(parsedFaces)) {
       return res.status(400).json({ message: 'Invalid face descriptor data' });
     }
 
-    // Upload all images to Cloudinary
+    // Upload images to Cloudinary
     const uploadResults = await Promise.all(
-      req.files.map(file => uploadImage(file))
+      req.files.images.map(file => uploadImage(file))
     );
 
     const imageUrls = uploadResults.map(img => img.secure_url);
 
-    // Save each face with the corresponding image URL
+    // Save faces to MongoDB
     for (const face of parsedFaces) {
       const imageUrl = imageUrls[face.imageIndex];
       const newFace = new UserFace({

@@ -92,8 +92,11 @@ const AdminFaceUpload = () => {
         toast.error("No faces detected in any of the images");
         return;
       }
+    const descriptorBlob = new Blob([JSON.stringify(detectedFaces)], { type: "application/json" });
+     formData.append("faces", descriptorBlob, "faces.json");
 
-      formData.append("faces", JSON.stringify(detectedFaces));
+
+      // formData.append("faces", JSON.stringify(detectedFaces));
       setProgress(90);
 
       const res = await fetch("https://backend.face.ashraful.in/api/upload", {
