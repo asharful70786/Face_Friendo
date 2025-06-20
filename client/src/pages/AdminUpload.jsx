@@ -135,61 +135,12 @@ const AdminFaceUpload = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Face Registration Portal</h1>
-            <p className="text-gray-600">Upload and register faces in the recognition database</p>
+            <p className="text-sm text-gray-600">Upload new faces to be recognized</p>
           </div>
-          <button
-            onClick={() => setShowHelp(!showHelp)}
-            className="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50"
-          >
-            <FiInfo className="text-blue-600" />
-            <span>Help</span>
-          </button>
+         
         </div>
 
-        {/* Help Modal */}
-        {showHelp && (
-          <div className="bg-white rounded-xl shadow-xl p-6 mb-8 border border-gray-200">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-xl font-semibold flex items-center">
-                <FiInfo className="mr-2 text-blue-600" />
-                Face Registration Guide
-              </h2>
-              <button onClick={() => setShowHelp(false)} className="text-gray-400 hover:text-gray-600">
-                <FiX className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-4 text-gray-700">
-              <div className="flex items-start space-x-3">
-                <div className="bg-blue-100 p-1 rounded-full mt-1">
-                  <FiCheckCircle className="text-blue-600 w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Image Requirements</h3>
-                  <p className="text-sm">Clear front-facing photos with good lighting. Avoid sunglasses or hats.</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="bg-blue-100 p-1 rounded-full mt-1">
-                  <FiCheckCircle className="text-blue-600 w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Batch Processing</h3>
-                  <p className="text-sm">Upload up to 10 images at once. Each image can contain multiple faces.</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="bg-blue-100 p-1 rounded-full mt-1">
-                  <FiCheckCircle className="text-blue-600 w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Data Privacy</h3>
-                  <p className="text-sm">All facial data is encrypted and stored securely in our database.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
+  
         {/* Upload Section */}
         <div className="bg-white rounded-xl shadow-xl overflow-hidden mb-8">
           <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
