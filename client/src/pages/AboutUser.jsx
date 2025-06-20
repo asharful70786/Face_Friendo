@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { User, Mail, Shield, Edit } from "lucide-react";
 
 const AboutUser = () => {
   const [userData, setUserData] = useState(null);
@@ -27,158 +27,151 @@ const AboutUser = () => {
     getDetails();
   }, []);
 
+  const getRoleBadgeColor = (role) => {
+    switch (role?.toLowerCase()) {
+      case 'admin':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'moderator':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'user':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
-        <div className="animate-pulse text-amber-600 text-xl">Loading user data...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-amber-100">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Profile Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
-          {/* Profile Picture */}
-          <div className="relative w-48 h-48 rounded-full border-4 border-amber-500 shadow-xl overflow-hidden group">
-            <img
-              src={
-                userData?.photo ||
-                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-              }
-              alt="User Profile"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-amber-500 bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4">
+      <div className="max-w-5xl mx-auto">
+
+        {/* Profile Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+          
+          {/* Header */}
+          <div className="h-32 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <button className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors duration-200">
+              <Edit size={18} />
+            </button>
           </div>
 
-          {/* User Info */}
-          <div className="text-center md:text-left space-y-4 flex-1">
-            <h1 className="text-5xl font-bold text-gray-800">
-              {userData?.name || "User"}
-            </h1>
-           <p className="text-xl font-semibold text-neutral-content">
-          Role:
-             <span className="ml-2 badge badge-lg badge-warning text-base font-bold">
-            {userData?.role || "Member"}
-           </span>
-          </p>
-            
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
-              <div className="bg-white bg-opacity-80 px-6 py-3 rounded-lg shadow-sm">
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="text-amber-700 font-medium">{userData?.email || "Not provided"}</p>
+          {/* Profile Info */}
+          <div className="relative px-6 sm:px-8 pb-8">
+            <div className="flex justify-center -mt-16 mb-6">
+              <div className="relative">
+                <div className="w-28 sm:w-32 h-28 sm:h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
+                  <img
+                    src={userData.picture || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-green-500 border-4 border-white rounded-full"></div>
               </div>
-              
-              {userData?.phone && (
-                <div className="bg-white bg-opacity-80 px-6 py-3 rounded-lg shadow-sm">
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="text-amber-700 font-medium">{userData.phone}</p>
-                </div>
-              )}
-              
-              {userData?.location && (
-                <div className="bg-white bg-opacity-80 px-6 py-3 rounded-lg shadow-sm">
-                  <p className="text-sm text-gray-500">Location</p>
-                  <p className="text-amber-700 font-medium">{userData.location}</p>
-                </div>
-              )}
             </div>
-          </div>
-        </div>
 
-        {/* Detailed User Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Personal Details Card */}
-          <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8">
-            <h2 className="text-2xl font-bold text-amber-600 mb-6 pb-2 border-b border-amber-100">
-              Personal Details
-            </h2>
-            <div className="space-y-4">
-              {userData?.birthDate && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Birth Date</span>
-                  <span className="font-medium">{userData.birthDate}</span>
+            <div className="text-center space-y-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">{userData?.name || "User"}</h1>
+                <div className="flex justify-center">
+                  <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold border ${getRoleBadgeColor(userData?.role)}`}>
+                    <Shield size={16} />
+                    {userData?.role?.toUpperCase() || "MEMBER"}
+                  </span>
                 </div>
-              )}
-              
-              {userData?.gender && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Gender</span>
-                  <span className="font-medium">{userData.gender}</span>
-                </div>
-              )}
-              
-              {userData?.nationality && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Nationality</span>
-                  <span className="font-medium">{userData.nationality}</span>
-                </div>
-              )}
-              
-              {userData?.languages && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Languages</span>
-                  <span className="font-medium">{userData.languages.join(", ")}</span>
-                </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          {/* Professional Details Card */}
-          <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8">
-            <h2 className="text-2xl font-bold text-amber-600 mb-6 pb-2 border-b border-amber-100">
-              Professional Information
-            </h2>
-            <div className="space-y-4">
-              {userData?.company && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Company</span>
-                  <span className="font-medium">{userData.company}</span>
-                </div>
-              )}
-              
-              {userData?.department && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Department</span>
-                  <span className="font-medium">{userData.department}</span>
-                </div>
-              )}
-              
-              {userData?.position && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Position</span>
-                  <span className="font-medium">{userData.position}</span>
-                </div>
-              )}
-              
-              {userData?.skills && (
-                <div className="flex flex-col">
-                  <span className="text-gray-500 mb-2">Skills</span>
-                  <div className="flex flex-wrap gap-2">
-                    {userData.skills.map((skill, index) => (
-                      <span 
-                        key={index} 
-                        className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+              {/* Contact Info */}
+              <div className="max-w-md mx-auto w-full">
+                <div className="bg-slate-50 rounded-xl p-5 sm:p-6">
+                  <h3 className="text-lg font-semibold text-slate-700 mb-4 flex items-center justify-center gap-2">
+                    <User size={20} />
+                    Contact Information
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center gap-3 p-3 bg-white rounded-lg shadow-sm">
+                      <Mail className="text-blue-500" size={18} />
+                      <span className="text-slate-700 font-medium text-sm sm:text-base">{userData?.email || "No email provided"}</span>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
+                <button className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors duration-200">
+                  Edit Profile
+                </button>
+                <button className="w-full sm:w-auto px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg shadow-md transition-colors duration-200">
+                  Settings
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Additional Information */}
-        {userData?.bio && (
-          <div className="mt-8 bg-white bg-opacity-90 rounded-xl shadow-md p-8">
-            <h2 className="text-2xl font-bold text-amber-600 mb-4">About</h2>
-            <p className="text-gray-700 leading-relaxed">{userData.bio}</p>
+        {/* Info Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          {/* Account Status */}
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              Account Status
+              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium border border-yellow-300 shadow-sm">
+                Coming Soon
+              </span>
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Status</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Active</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Member Since</span>
+                <span className="text-slate-800 font-medium">2024</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600">Last Login</span>
+                <span className="text-slate-800 font-medium">Today</span>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              Quick Actions
+              <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium border border-yellow-300 shadow-sm">
+                Coming Soon
+              </span>
+            </h3>
+            <div className="space-y-3">
+              <button className="w-full text-left p-3 hover:bg-slate-50 rounded-lg transition-colors duration-200">
+                <div className="font-medium text-slate-800">Change Password</div>
+                <div className="text-sm text-slate-500">Update your account password</div>
+              </button>
+              <button className="w-full text-left p-3 hover:bg-slate-50 rounded-lg transition-colors duration-200">
+                <div className="font-medium text-slate-800">Privacy Settings</div>
+                <div className="text-sm text-slate-500">Manage your privacy preferences</div>
+              </button>
+              <button className="w-full text-left p-3 hover:bg-slate-50 rounded-lg transition-colors duration-200">
+                <div className="font-medium text-slate-800">Download Data</div>
+                <div className="text-sm text-slate-500">Export your account data</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

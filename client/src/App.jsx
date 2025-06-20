@@ -13,17 +13,16 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
 import PrivacyPage from "./pages/privacy";
 import Terms from "./pages/Terms";
+import Loading from "./components/Loading";
 
 function AppContent() {
   const { loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-xl text-white">
-        Checking session...
-      </div>
-    );
-  }
+if (loading)  {
+  return <Loading />
+}
+ 
+
 
   return (
     <>
@@ -57,9 +56,9 @@ function AppContent() {
         <Route
           path="/about-user"
           element={
-            <ProtectedRoute>
+            // <ProtectedRoute>
               <AboutUser />
-            </ProtectedRoute>
+            // </ProtectedRoute>
           }
         />
       </Routes>
